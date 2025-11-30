@@ -49,36 +49,76 @@ function updatePlayer() {
   player.y += player.vy * player.speed
 }
 
-function getPlayerStyle() {
+// --- LERP ---
+
+function lerp(a, b, t) {
+  return a + (b - a) * t
+}
+
+function lerpColor(c1, c2, t) {
+  return {
+    r: lerp(c1.r, c2.r, t),
+    g: lerp(c1.g, c2.g, t),
+    b: lerp(c1.b, c2.b, t),
+  }
+}
+
+function rgbToString(c) {
+  return `rgb(${c.r | 0}, ${c.g | 0}, ${c.b | 0})`
+}
+
+let currentStyle = {
+  color: { r: 200, g: 200, b: 200 },
+  radius: [0, 0, 0, 0],
+}
+
+let targetStyle = {
+  color: { r: 200, g: 200, b: 200 },
+  radius: [0, 0, 0, 0],
+}
+
+function setTargetStyle() {
   const vx = player.vx
   const vy = player.vy
 
-  // Static
+  let color
+  let radius
+
   if (vx === 0 && vy === 0) {
-    return {
-      color: '#cccccc',
-      radius: [0, 0, 0, 0],
-    }
+    color = { r: 200, g: 200, b: 200 }
+    radius = [0, 0, 0, 0]
+  } else if (vy === -1 && vx === 0) {
+    color = { r: 0, g: 120, b: 255 } // blue
+    radius = [20, 20, 0, 0]
+  } else if (vy === 1 && vx === 0) {
+    color = { r: 255, g: 255, b: 0 } // yellow
+    radius = [0, 0, 20, 20]
+  } else if (vx === -1 && vy === 0) {
+    color = { r: 0, g: 255, b: 0 } // green
+    radius = [20, 0, 0, 20]
+  } else if (vx === 1 && vy === 0) {
+    color = { r: 255, g: 0, b: 0 } // red
+    radius = [0, 20, 20, 0]
+  } else if (vx > 0 && vy < 0) {
+    // NE
+    color = { r: 180, g: 0, b: 255 } // purple
+    radius = [0, 20, 0, 0]
+  } else if (vx < 0 && vy < 0) {
+    // NW
+    color = { r: 0, g: 170, b: 170 } // teal
+    radius = [20, 0, 0, 0]
+  } else if (vx > 0 && vy > 0) {
+    // SE
+    color = { r: 255, g: 165, b: 0 } // orange
+    radius = [0, 0, 20, 0]
+  } else if (vx < 0 && vy > 0) {
+    // SW
+    color = { r: 120, g: 255, b: 120 } // lightgreen
+    radius = [0, 0, 0, 20]
   }
 
-  // Directions & styles
-  if (vy === -1 && vx === 0) return { color: 'blue', radius: [15, 15, 0, 0] }
-  if (vy === 1 && vx === 0) return { color: 'yellow', radius: [0, 0, 15, 15] }
-  if (vx === -1 && vy === 0) return { color: 'green', radius: [15, 0, 0, 15] }
-  if (vx === 1 && vy === 0) return { color: 'red', radius: [0, 15, 15, 0] }
-
-  // Diagonals
-  if (vy === -Math.sqrt(0.5) && vx === Math.sqrt(0.5))
-    return { color: 'purple', radius: [0, 15, 0, 0] } // NE
-
-  if (vy === -Math.sqrt(0.5) && vx === -Math.sqrt(0.5))
-    return { color: 'teal', radius: [15, 0, 0, 0] } // NW
-
-  if (vy === Math.sqrt(0.5) && vx === Math.sqrt(0.5))
-    return { color: 'orange', radius: [0, 0, 15, 0] } // SE
-
-  if (vy === Math.sqrt(0.5) && vx === -Math.sqrt(0.5))
-    return { color: 'lightgreen', radius: [0, 0, 0, 15] } // SW
+  targetStyle.color = color
+  targetStyle.radius = radius
 }
 
 // ----- Draw rounded square -------------
@@ -108,39 +148,31 @@ function loop() {
   ctx.fillStyle = '#1b2229'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+  currentStyle.color = lerpColor(currentStyle.color, targetStyle.color, 0.1)
+  for (let i = 0; i < 4; i++) {
+    currentStyle.radius[i] = lerp(
+      currentStyle.radius[i],
+      targetStyle.radius[i],
+      0.15
+    )
+  }
+
   // 2. Update player
   updatePlayer()
 
+  setTargetStyle()
+
   // 3. Get style and draw
-  const style = getPlayerStyle()
   drawRoundedRect(
     player.x,
     player.y,
     player.size,
     player.size,
-    style.radius,
-    style.color
+    currentStyle.radius,
+    rgbToString(currentStyle.color)
   )
 
   requestAnimationFrame(loop)
 }
 
 loop()
-
-// --- LERP ---
-
-function lerp(a, b, t) {
-  return a + (b - a) * t
-}
-
-function lerpColor(c1, c2, t) {
-  return {
-    r: lerp(c1.r, c2.r, t),
-    g: lerp(c1.g, c2.g, t),
-    b: lerp(c1.b, c2.b, t),
-  }
-}
-
-function rgbToString(c) {
-  return `rgb(${c.r | 0}, ${c.g | 0}, ${c.b | 0})`
-}
