@@ -62,23 +62,23 @@ function getPlayerStyle() {
   }
 
   // Directions & styles
-  if (vy === -1 && vx === 0) return { color: 'yellow', radius: [15, 15, 0, 0] }
-  if (vy === 1 && vx === 0) return { color: 'blue', radius: [0, 0, 15, 15] }
+  if (vy === -1 && vx === 0) return { color: 'blue', radius: [15, 15, 0, 0] }
+  if (vy === 1 && vx === 0) return { color: 'yellow', radius: [0, 0, 15, 15] }
   if (vx === -1 && vy === 0) return { color: 'green', radius: [15, 0, 0, 15] }
   if (vx === 1 && vy === 0) return { color: 'red', radius: [0, 15, 15, 0] }
 
   // Diagonals
   if (vy === -Math.sqrt(0.5) && vx === Math.sqrt(0.5))
-    return { color: 'orange', radius: [0, 15, 0, 0] } // NE
+    return { color: 'purple', radius: [0, 15, 0, 0] } // NE
 
   if (vy === -Math.sqrt(0.5) && vx === -Math.sqrt(0.5))
-    return { color: 'lightgreen', radius: [15, 0, 0, 0] } // NW
+    return { color: 'teal', radius: [15, 0, 0, 0] } // NW
 
   if (vy === Math.sqrt(0.5) && vx === Math.sqrt(0.5))
-    return { color: 'purple', radius: [0, 0, 15, 0] } // SE
+    return { color: 'orange', radius: [0, 0, 15, 0] } // SE
 
   if (vy === Math.sqrt(0.5) && vx === -Math.sqrt(0.5))
-    return { color: 'teal', radius: [0, 0, 0, 15] } // SW
+    return { color: 'lightgreen', radius: [0, 0, 0, 15] } // SW
 }
 
 // ----- Draw rounded square -------------
@@ -126,3 +126,21 @@ function loop() {
 }
 
 loop()
+
+// --- LERP ---
+
+function lerp(a, b, t) {
+  return a + (b - a) * t
+}
+
+function lerpColor(c1, c2, t) {
+  return {
+    r: lerp(c1.r, c2.r, t),
+    g: lerp(c1.g, c2.g, t),
+    b: lerp(c1.b, c2.b, t),
+  }
+}
+
+function rgbToString(c) {
+  return `rgb(${c.r | 0}, ${c.g | 0}, ${c.b | 0})`
+}
