@@ -47,6 +47,15 @@ function updatePlayer() {
 
   player.x += player.vx * player.speed
   player.y += player.vy * player.speed
+
+  // check borders
+  if (player.x < 0) player.x = 0
+  if (player.x + player.size > canvas.width)
+    player.x = canvas.width - player.size
+
+  if (player.y < 0) player.y = 0
+  if (player.y + player.size > canvas.height)
+    player.y = canvas.height - player.size
 }
 
 // --- LERP ---
